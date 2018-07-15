@@ -24,11 +24,27 @@ class Task():
         self.action_size = 4
 
         # Goal
-        self.target_pos = target_pos if target_pos is not None else np.array([0., 0., 10.]) 
+        self.target_pos = target_pos if target_pos is not None else np.array([15, 30, 45]) 
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        ##reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+
+        ##the closer the drone is, the more rewards it has
+        distance_to_goal = np.linalg.norm(self.target_pos[:3] - self.sim.pose[:3])
+        ##print("My distance to goal: " + str(distance_to_goal))
+        
+        ##the smaller as drone approaches the goal, the more rewards it gains 
+        drone_acceleration = np.linalg.norm(self.sim.linear_accel)
+        ##print("My linear acceleration: " + str(drone_acceleration))
+
+        ##reward = (15 - distance_to_goal) * 0.05 - drone_acceleration * 0.005
+        reward = 5 * (distance_to_goal + 0.05)**(-1) - 1 * (drone_acceleration + 0.01)**(-1)
+
+        ##print("My reward: " + str(reward))
+
+        ##print("\n")
+
         return reward
 
     def step(self, rotor_speeds):
